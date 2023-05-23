@@ -68,30 +68,29 @@ class SeederGenerator
 
     protected function generateSeederFile($table, $data): string
     {
+        $file = new FileHandler();
         $className = $this->tableToSeederClassName($table);
         // Generate the Seeder file content based on the $table and $data
         // You can customize the Seeder file content generation according to your needs
 
-        $seederFileContent = "<?php namespace App\Database\Seeds;\n\n";
-        $seederFileContent .= "use CodeIgniter\Database\Seeder;\n\n";
-        $seederFileContent .= "class " . $className . " extends Seeder\n";
-        $seederFileContent .= "{\n";
-        $seederFileContent .= "    public function run()\n";
-        $seederFileContent .= "    {\n";
-
-        $seederFileContent .= "        \$" . $table . " = [\n";
+        $seederFileContent = "\$" . $table . " = [\n";
         foreach ($data as $row) {
-            $seederFileContent .= "                   [";
+            $seederFileContent .= "            [";
             foreach ($row as $column => $value) {
                 $seederFileContent .= "'$column' => " . var_export($value, true) . ",";
             }
             $seederFileContent .= "],\n";
         }
         $seederFileContent .= "        ];\n\n";
-        $seederFileContent .= "    }\n";
-        $seederFileContent .= "}\n";
 
-        return $seederFileContent;
+        $data = [
+            '{name}' => $className,
+            '{created_at}' => date("d F, Y h:i:s A"),
+            '{seeder}' => $seederFileContent,
+            '{table}' => $table
+        ];
+
+        return $file->renderTemplate('seeder', $data);
     }
 
     protected function saveSeederFile($table, $seederFileContent)

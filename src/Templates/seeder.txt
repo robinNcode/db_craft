@@ -1,0 +1,36 @@
+<?php namespace App\Database\Seeds;
+
+use CodeIgniter\Database\Seeder;
+use ReflectionException;
+
+/**
+ * Short description of this class usages
+ * @class {name}
+ * @generated_by DbCraft
+ * @package App\Database\Seeds
+ * @extend Seeder
+ * @created_at {created_at}
+ */
+
+class {name} extends Seeder
+{
+    /**
+     * @throws ReflectionException
+     */
+    public function run(){
+
+        // Table Data ...
+        {seeder}
+
+
+        // Cleaning up the table before seeding ...
+        $this->db->table('{table}')->truncate();
+
+        //Using Query Builder Class ...
+        try {
+        $this->db->table('{table}')->insertBatch(${table});
+        } catch (ReflectionException $e) {
+            throw new ReflectionException($e->getMessage());
+        }
+    }
+}
