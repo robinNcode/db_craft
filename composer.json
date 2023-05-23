@@ -1,0 +1,19 @@
+{
+    "name": "robinncode/db_craft",
+    "description": "DB Craft - CodeIgniter 4 Seeder Generato",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Robinncode\\DbCraft\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "robinNcode",
+            "email": "msmrobin518@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
