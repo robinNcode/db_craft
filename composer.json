@@ -2,18 +2,39 @@
     "name": "robinncode/db_craft",
     "description": "DB Craft - CodeIgniter 4 Seeder, Migration Generator",
     "type": "library",
+    "version": "1.0.0",
     "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Robinncode\\DbCraft\\": "src/"
-        }
-    },
     "authors": [
         {
             "name": "robinNcode",
             "email": "msmrobin518@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {}
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Robinncode\\DbCraft\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.2"
+    },
+    "prefer-stable": true,
+    "keywords": [
+        "translation",
+        "language",
+        "localization",
+        "laravel"
+    ],
+    "homepage": "https://github.com/robinNcode/db_craft",
+    "repository": "https://github.com/robinNcode/db_craft.git",
+    "support": {
+        "documentation": "not yet",
+        "email": "msmrobin518@gmail.com",
+        "issues": "https://github.com/robinNcode/db_craft/issues"
+    }
 }

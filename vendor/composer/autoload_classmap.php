@@ -7,4 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'Robinncode\\DbCraft\\Commands\\GetSeedCommand' => $baseDir . '/src/Commands/GetSeedCommand.php',
+    'Robinncode\\DbCraft\\Libraries\\FileHandler' => $baseDir . '/src/Libraries/FileHandler.php',
+    'Robinncode\\DbCraft\\Libraries\\SeederGenerator' => $baseDir . '/src/Libraries/SeederGenerator.php',
 );
