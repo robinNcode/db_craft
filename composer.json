@@ -1,6 +1,6 @@
 {
     "name": "robinncode/db_craft",
-    "description": "DB Craft - CodeIgniter 4 Seeder Generato",
+    "description": "DB Craft - CodeIgniter 4 Seeder, Migration Generator",
     "type": "library",
     "license": "MIT",
     "autoload": {
