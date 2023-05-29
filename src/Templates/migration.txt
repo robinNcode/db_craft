@@ -5,7 +5,7 @@ use CodeIgniter\Database\Migration;
 /**
  * Short description of this class usages
  * @class {name}
- * @generated_by DbCraft
+ * @generated_by RobinNcode\db_craft
  * @package App\Database\Migrations
  * @extend CodeIgniter\Database\Migration
  * @generated_at {created_at}
@@ -19,12 +19,16 @@ class {name} extends Migration
         $this->db->disableForeignKeyChecks();
 
         $this->forge->addField([
-	    {attributes}
+            {attributes}
 	    ]);
+
+	    // table keys ...
         {keys}
+
+        // Create Table ...
         $this->forge->createTable('{table}');
 
-        //enable Foreign Key Check
+        //enable foreign key check ...
         $this->db->enableForeignKeyChecks();
 	}
 
@@ -35,6 +39,7 @@ class {name} extends Migration
         //disable Foreign Key Check
         $this->db->disableForeignKeyChecks();
 
+        // Drop Table ...
         $this->forge->dropTable('{table}');
 
         //enable Foreign Key Check

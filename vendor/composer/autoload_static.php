@@ -22,8 +22,11 @@ class ComposerStaticInite82b8245945cb29db431af3b6cd28e27
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Robinncode\\DbCraft\\Commands\\GetMigrationCommand' => __DIR__ . '/../..' . '/src/Commands/GetMigrationCommand.php',
         'Robinncode\\DbCraft\\Commands\\GetSeedCommand' => __DIR__ . '/../..' . '/src/Commands/GetSeedCommand.php',
+        'Robinncode\\DbCraft\\Config' => __DIR__ . '/../..' . '/src/Config.php',
         'Robinncode\\DbCraft\\Libraries\\FileHandler' => __DIR__ . '/../..' . '/src/Libraries/FileHandler.php',
+        'Robinncode\\DbCraft\\Libraries\\MigrationGenerator' => __DIR__ . '/../..' . '/src/Libraries/MigrationGenerator.php',
         'Robinncode\\DbCraft\\Libraries\\SeederGenerator' => __DIR__ . '/../..' . '/src/Libraries/SeederGenerator.php',
     );
 

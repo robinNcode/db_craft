@@ -7,7 +7,10 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'Robinncode\\DbCraft\\Commands\\GetMigrationCommand' => $baseDir . '/src/Commands/GetMigrationCommand.php',
     'Robinncode\\DbCraft\\Commands\\GetSeedCommand' => $baseDir . '/src/Commands/GetSeedCommand.php',
+    'Robinncode\\DbCraft\\Config' => $baseDir . '/src/Config.php',
     'Robinncode\\DbCraft\\Libraries\\FileHandler' => $baseDir . '/src/Libraries/FileHandler.php',
+    'Robinncode\\DbCraft\\Libraries\\MigrationGenerator' => $baseDir . '/src/Libraries/MigrationGenerator.php',
     'Robinncode\\DbCraft\\Libraries\\SeederGenerator' => $baseDir . '/src/Libraries/SeederGenerator.php',
 );

@@ -6,7 +6,7 @@ use ReflectionException;
 /**
  * Short description of this class usages
  * @class {name}
- * @generated_by DbCraft
+ * @generated_by RobinNcode\db_craft
  * @package App\Database\Seeds
  * @extend CodeIgniter\Database\Seeder
  * @generated_at {created_at}
