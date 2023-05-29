@@ -1,7 +1,6 @@
 <?php namespace Robinncode\DbCraft\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
-use CodeIgniter\CLI\CLI;
 use Robinncode\DbCraft\Libraries\SeederGenerator;
 
 class GetSeedCommand extends BaseCommand
@@ -14,7 +13,7 @@ class GetSeedCommand extends BaseCommand
      * The Command's usage
      * @var string
      */
-    protected $usage = 'create:seed [table_name]';
+    protected $usage = 'get:seed [table_name]';
 
 
     public function run(array $params)

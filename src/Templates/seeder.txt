@@ -8,8 +8,8 @@ use ReflectionException;
  * @class {name}
  * @generated_by DbCraft
  * @package App\Database\Seeds
- * @extend Seeder
- * @created_at {created_at}
+ * @extend CodeIgniter\Database\Seeder
+ * @generated_at {created_at}
  */
 
 class {name} extends Seeder

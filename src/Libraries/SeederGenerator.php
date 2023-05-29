@@ -6,10 +6,12 @@ use CodeIgniter\CLI\CLI;
 class SeederGenerator
 {
     protected BaseConnection $db;
+    private FileHandler $file;
 
     public function __construct()
     {
         $this->db = db_connect();
+        $this->file = new FileHandler();
     }
 
     /**
@@ -84,30 +86,9 @@ class SeederGenerator
         return $query->getResultArray();
     }
 
-    /**
-     * Convert table name to Seeder class name
-     * @param $input
-     * @return string
-     */
-
-    protected function tableToSeederClassName($input): string
-    {
-        $parts = explode('_', $input);
-        $className = '';
-
-        foreach ($parts as $part) {
-            $className .= ucfirst($part);
-        }
-
-        $className .= 'Seeder';
-
-        return $className;
-    }
-
     protected function generateSeederFile($table, $data): string
     {
-        $file = new FileHandler();
-        $className = $this->tableToSeederClassName($table);
+        $className = $this->file->tableToSeederClassName($table);
         // Generate the Seeder file content based on the $table and $data
         // You can customize the Seeder file content generation according to your needs
 
@@ -123,18 +104,18 @@ class SeederGenerator
 
         $data = [
             '{name}' => $className,
-            '{created_at}' => date("d F, Y h:i:s A"),
+            '{created_at}' => PRETTIFY_DATETIME,
             '{seeder}' => $seederFileContent,
             '{table}' => $table
         ];
 
-        return $file->renderTemplate('seeder', $data);
+        return $this->file->renderTemplate('seeder', $data);
     }
 
     protected function saveSeederFile($table, $seederFileContent)
     {
         // Save the Seeder file to app/Database/Seeds folder
-        $fileName = $this->tableToSeederClassName($table);
+        $fileName = $this->file->tableToSeederClassName($table);
         $path = APPPATH . 'Database/Seeds/' . $fileName . ".php";
 
         if (!file_exists($path)) {
