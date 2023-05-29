@@ -1,40 +1,42 @@
 {
-    "name": "robinncode/db_craft",
-    "description": "DB Craft - CodeIgniter 4 Seeder, Migration Generator",
-    "type": "library",
-    "version": "1.0.0",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "robinNcode",
-            "email": "msmrobin518@gmail.com"
-        }
-    ],
-    "config": {
-        "optimize-autoloader": true,
-        "sort-packages": true
-    },
-    "autoload": {
-        "psr-4": {
-            "Robinncode\\DbCraft\\": "src/"
-        }
-    },
-    "minimum-stability": "stable",
-    "require": {
-        "php": ">=7.2"
-    },
-    "prefer-stable": true,
-    "keywords": [
-        "translation",
-        "language",
-        "localization",
-        "laravel"
-    ],
-    "homepage": "https://github.com/robinNcode/db_craft",
-    "repository": "https://github.com/robinNcode/db_craft.git",
-    "support": {
-        "documentation": "not yet",
-        "email": "msmrobin518@gmail.com",
-        "issues": "https://github.com/robinNcode/db_craft/issues"
+  "name": "robinncode/db_craft",
+  "description": "DB Craft - CodeIgniter 4 Seeder, Migration Generator",
+  "type": "library",
+  "version": "1.0.0",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mohammad Shahin Mia Robin",
+      "email": "msmrobin518@gmail.com"
     }
+  ],
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Robinncode\\DbCraft\\": "src/"
+    }
+  },
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.2"
+  },
+  "prefer-stable": true,
+  "keywords": [
+    "Codeigniter4",
+    "Migration",
+    "Seeder",
+    "Connected Database",
+    "PHP",
+    "CLI Tool"
+  ],
+  "homepage": "https://github.com/robinNcode/db_craft",
+  "repository": "https://github.com/robinNcode/db_craft.git",
+  "support": {
+    "documentation": "https://github.com/robinNcode/db_craft/blob/master/README.md",
+    "email": "msmrobin518@gmail.com",
+    "issues": "https://github.com/robinNcode/db_craft/issues"
+  }
 }
