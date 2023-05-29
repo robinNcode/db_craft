@@ -10,11 +10,18 @@ class GetSeedCommand extends BaseCommand
     protected $name        = 'get:seed';
     protected $description = 'Generate Seeder files for CodeIgniter 4 based on connected database tables.';
 
+    /**
+     * The Command's usage
+     * @var string
+     */
+    protected $usage = 'create:seed [table_name]';
+
+
     public function run(array $params)
     {
-        $generator = new SeederGenerator();
-        $generator->generateSeeders();
+        $table_name = array_shift($params);
 
-        CLI::write('Seeder files generated successfully.', 'green');
+        $generator = new SeederGenerator();
+        $generator->generateSeeders($table_name);
     }
 }

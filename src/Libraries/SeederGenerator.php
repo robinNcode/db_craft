@@ -12,34 +12,72 @@ class SeederGenerator
         $this->db = db_connect();
     }
 
-    public function generateSeeders()
+    /**
+     * Generate Seeder files for CodeIgniter 4 based on connected database tables ...
+     * @param $table_name
+     * @return void
+     */
+    public function generateSeeders($table_name = null)
     {
-        $tables = $this->getTables();
+        $tables = $this->getTables($table_name);
         $seederFileContent = [];
 
-        foreach ($tables as $table) {
-            $data = $this->getTableData($table);
-            $seederFileContent = $this->generateSeederFile($table, $data);
-
-            $this->saveSeederFile($table, $seederFileContent);
+        if(empty($tables)){
+            CLI::write("No table found. Check your database connection", 'red');
         }
+        else{
+            foreach ($tables as $table) {
+                $data = $this->getTableData($table);
+                $seederFileContent = $this->generateSeederFile($table, $data);
 
-        //dd($seederFileContent);
+                $this->saveSeederFile($table, $seederFileContent);
+            }
+            CLI::write('Seeder files generated successfully.', 'green');
+        }
     }
 
-    protected function getTables(): array
+    /**
+     * Getting tables or only a specific table from connected database ...
+     * @param null $table_name
+     * @return array
+     */
+    protected function getTables($table_name = null): array
+    {
+        $tables = $this->allTables();
+
+        if (empty($table_name)) {
+            return $tables;
+        }
+        else{
+            if (in_array($table_name, $tables)) {
+                return [$table_name];
+            }
+            else{
+                CLI::write("Table '$table_name' not found. Check your table name", 'red');
+                return [];
+            }
+        }
+    }
+
+    /**
+     * Getting all tables from database ...
+     * @return array
+     */
+    protected function allTables(): array
     {
         $tables = [];
-
         $result = $this->db->listTables();
-
         foreach ($result as $row) {
             $tables[] = $row;
         }
-
         return $tables;
     }
 
+    /**
+     * Getting table data ...
+     * @param $table
+     * @return array
+     */
     protected function getTableData($table): array
     {
         $query = $this->db->table($table)->get();
