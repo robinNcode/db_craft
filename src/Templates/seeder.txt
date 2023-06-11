@@ -22,7 +22,6 @@ class {name} extends Seeder
         // Table Data ...
         {seeder}
 
-
         // Cleaning up the table before seeding ...
         $this->db->table('{table}')->truncate();
 
