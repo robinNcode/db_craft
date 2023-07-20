@@ -17,8 +17,8 @@ class {name} extends Seeder
     /**
      * @throws ReflectionException
      */
-    public function run(){
-
+    public function run(): void
+    {
         // Table Data ...
         {seeder}
 

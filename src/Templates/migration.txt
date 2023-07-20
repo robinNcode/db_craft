@@ -15,7 +15,7 @@ class {name} extends Migration
 {
     public function up()
     {
-        //disable Foreign Key Check
+        // disable foreign key check ...
         $this->db->disableForeignKeyChecks();
 
         $this->forge->addField([
@@ -36,13 +36,13 @@ class {name} extends Migration
 
     public function down()
     {
-        //disable Foreign Key Check
+        // disable foreign key check ...
         $this->db->disableForeignKeyChecks();
 
         // Drop Table ...
         $this->forge->dropTable('{table}');
 
-        //enable Foreign Key Check
+        //enable foreign key check ...
         $this->db->enableForeignKeyChecks();
     }
 }

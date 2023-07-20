@@ -34,7 +34,7 @@ class SeederGenerator
 
                 $this->saveSeederFile($table, $seederFileContent);
             }
-            CLI::write('Seeder files generated successfully.', 'green');
+            CLI::write('Seeder files generated successfully!', 'green');
         }
     }
 
@@ -100,7 +100,7 @@ class SeederGenerator
             }
             $seederFileContent .= "],\n";
         }
-        $seederFileContent .= "        ];\n\n";
+        $seederFileContent .= "        ];\n";
 
         $data = [
             '{name}' => $className,
@@ -121,9 +121,9 @@ class SeederGenerator
         if (!file_exists($path)) {
             helper('filesystem');
             write_file($path, $seederFileContent);
-            CLI::write("Seeder file '$table' generated.", 'yellow');
+            CLI::write($table . " Seeder file generated!", 'yellow');
         } else {
-            CLI::write("Seeder file '$table' already exists.", 'red');
+            CLI::write($table . " Seeder file already exists!", 'red');
         }
     }
 }
