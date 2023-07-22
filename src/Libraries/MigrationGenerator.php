@@ -151,10 +151,14 @@ class MigrationGenerator
         $query = $this->db->query("DESCRIBE $table")->getResult();
         $fieldString = '';
 
-        // Get default values from information_schema
-        $defaultValues = $this->getDefaultValues($table);
-
         foreach ($query as $field) {
+
+            // Check if the field has a default value of 'current_timestamp()' or other custom default value
+            if ($field->Default === 'current_timestamp()' || $this->isCustomDefaultValue($field->Default)) {
+                $fieldString .= "\n\t\t'$field->Field $field->Type NULL DEFAULT current_timestamp()',";
+                continue;
+            }
+
             $singleField = "\n\t\t'$field->Field' => [";
             //Type
             if (preg_match('/^([a-z]+)/', $field->Type, $matches) > 0)
@@ -183,19 +187,6 @@ class MigrationGenerator
 
             //if field needs null
             $singleField .= "\n\t\t\t'null' => " . (($field->Null == 'YES') ? 'true,' : 'false,');
-
-            // Fetch and add the default value
-            $default = isset($defaultValues[$field->Field]) ? $defaultValues[$field->Field] : null;
-
-            if (!is_null($default)) {
-                if (strpos($default, 'current_timestamp()') !== false) {
-                    // If the default value is 'current_timestamp()', handle it accordingly.
-                    $singleField .= "\n\t\t\t'default' => \$this->db->query('SELECT current_timestamp() AS time')->getRow()->time,";
-                } else {
-                    $singleField .= "\n\t\t\t'default' => '$default',";
-                }
-            }
-
             //unsigned
             if (strpos($field->Type, 'unsigned') !== false)
                 $singleField .= "\n\t\t\t'unsigned' => true,";
@@ -211,6 +202,17 @@ class MigrationGenerator
         return $fieldString;
     }
 
+    /**
+     * Check if the given default value is a custom default value
+     * @param string|null $defaultValue
+     * @return bool
+     */
+    protected function isCustomDefaultValue(?string $defaultValue): bool
+    {
+        // Implementing custom logic to check for other custom default values here
+        // For example, you can check if the default value contains 'current_timestamp()'
+        return strpos($defaultValue, 'current_timestamp()') !== false;
+    }
 
     /**
      * To generate keys from a table ...
@@ -261,42 +263,4 @@ class MigrationGenerator
 
         return implode('', array_unique($keyArray));
     }
-
-    /**
-     * Get default values for each column in the table from information_schema
-     * @param string $table
-     * @return array
-     */
-    protected function getDefaultValues(string $table): array
-    {
-        $query = $this->db->query("SELECT DISTINCT COLUMN_NAME, COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE TABLE_NAME = '$table'")->getResultArray();
-
-        $defaultValues = [];
-        foreach ($query as $row) {
-            $columnName = $row['COLUMN_NAME'];
-            $columnDefault = $row['COLUMN_DEFAULT'];
-
-            // Exclude columns with NULL default values
-            if ($columnDefault === 'NULL' || $columnDefault === null) {
-                $defaultValues[$columnName] = null;
-            } elseif (strpos($columnDefault, 'current_timestamp()') !== false) {
-                // Handle current_timestamp() default value
-                $defaultValues[$columnName] = 'current_timestamp()';
-            } else {
-                // Remove quotes from the default value if present
-                $defaultValues[$columnName] = trim($columnDefault, "'");
-            }
-        }
-
-        return $defaultValues;
-    }
-
-    // Ok, we have modify the generateField method. If there is any column has default value current timestamp then the syntax will be:
-    //     "$this->forge->addField("updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");"
-        
-    //     not this:
-    //     'updated_at' => [
-    //                     'type' => 'TIMESTAMP', // Change the data type according to your column type (e.g., DATETIME, TIMESTAMP, etc.)
-    //                     'default' => 'CURRENT_TIMESTAMP', // Set the current timestamp as the default value
-    //                 ],
 }
