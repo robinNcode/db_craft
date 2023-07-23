@@ -210,7 +210,11 @@ class MigrationGenerator
     protected function isCustomDefaultValue(?string $defaultValue): bool
     {
         // Implementing custom logic to check for other custom default values here
-        // For example, you can check if the default value contains 'current_timestamp()'
+        // For example, you can check if the default value contains 'current_timestamp()' or not ...
+        if($defaultValue === 'NULL') {
+            return false;
+        }
+
         return strpos($defaultValue, 'current_timestamp()') !== false;
     }
 
