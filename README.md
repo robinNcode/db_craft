@@ -2,6 +2,12 @@
 
 DB-Craft is a package for CodeIgniter 4 that provides convenient commands to generate migration and seeder files from a connected database.
 
+- Automatic Migration Generation: DB-Craft provides a simple command-line interface to generate migration files automatically based on the connected database. This feature allows developers to keep track of database schema changes and easily apply them to different environments.
+
+- Table-Specific Migrations: Developers can also generate migration files for specific tables, providing granular control over database changes. This flexibility allows for efficient database management and versioning.
+
+- Seeding Support: DB-Craft includes functionality to generate seeders, enabling developers to populate their database with initial data. This feature is especially useful for setting up sample data or populating reference tables.
+
 ## Installation
 
 You can install the DB-Craft package via Composer by running the following command:

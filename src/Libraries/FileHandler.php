@@ -90,12 +90,12 @@ class FileHandler
 
         $finalFile = $this->renderTemplate('migration', $data);
 
-        CLI::write("Creating file: $fileName ...", 'yellow');
+        CLI::write($fileName . " file is creating...", 'yellow');
         if(file_put_contents($filePath, $finalFile)){
-            CLI::write("Created file: $fileName !", 'green');
+            CLI::write($fileName . " file created!", 'green');
         }
         else{
-            CLI::error("Failed to create file: $fileName !");
+            CLI::error($fileName . " failed to create file!");
         }
     }
 
