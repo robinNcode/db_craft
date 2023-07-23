@@ -211,7 +211,7 @@ class MigrationGenerator
     {
         // Implementing custom logic to check for other custom default values here
         // For example, you can check if the default value contains 'current_timestamp()' or not ...
-        if($defaultValue === 'NULL') {
+        if($defaultValue === null) {
             return false;
         }
 
