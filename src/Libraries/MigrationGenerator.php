@@ -19,6 +19,7 @@ class MigrationGenerator
      * @var array|BaseConnection|string|null
      */
     protected $db = null;
+    const MIGRATION_TABLE = 'migrations';
 
     /**
      * DBHandler constructor.
@@ -44,7 +45,11 @@ class MigrationGenerator
         $tables = $this->getTableNames();
         foreach ($tables as $table) {
             $tableInfo = $this->getTableInfos($table);
-
+            
+            if ($table === self::MIGRATION_TABLE) {
+                            continue;
+            }
+            
             $file = new FileHandler();
             $file->writeTable($table, $tableInfo['attributes'], $tableInfo['keys']);
         }
