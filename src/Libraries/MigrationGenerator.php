@@ -263,7 +263,7 @@ class MigrationGenerator
         $keys = $this->db->getForeignKeyData($table);
         $keyArray = [];
         foreach ($keys as $key)
-            $keyArray[] = "\n\t\t\$this->forge->addForeignKey('$key->column_name','$key->foreign_table_name','$key->foreign_column_name','CASCADE','CASCADE');";
+            $keyArray[] = PHP_EOL . chr(9) . chr(9) . '$this->forge->addForeignKey(\'$key->column_name\',\'$key->foreign_table_name\',\'$key->foreign_column_name\',\'CASCADE\',\'CASCADE\');';
 
         return implode('', array_unique($keyArray));
     }
