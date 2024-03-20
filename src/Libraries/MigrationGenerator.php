@@ -1,6 +1,4 @@
-<?php
-
-namespace Robinncode\DbCraft\Libraries;
+<?php namespace Robinncode\DbCraft\Libraries;
 
 use CodeIgniter\CLI\CLI;
 use CodeIgniter\Database\BaseConnection;
@@ -8,8 +6,8 @@ use Config\Database;
 use Throwable;
 
 /**
- * @class DBHandler
- * Handle all db collection and table column generate
+ * @class MigrationGenerator
+ * Handle all db collection and generate table column ...
  * @author MsM Robin
  * @package Robinncode\DbCraft\Libraries
  */
@@ -22,8 +20,7 @@ class MigrationGenerator
     const MIGRATION_TABLE = 'migrations';
 
     /**
-     * DBHandler constructor.
-     *
+     * DBHandler constructor...
      * @param string|null $group
      */
     public function __construct(string $group = null)
@@ -38,7 +35,8 @@ class MigrationGenerator
     }
 
     /**
-     *
+     * Generating all migration...
+     * @return void
      */
     public function generateAllMigration(): void
     {
@@ -47,7 +45,7 @@ class MigrationGenerator
             $tableInfo = $this->getTableInfos($table);
             
             if ($table === self::MIGRATION_TABLE) {
-                            continue;
+               continue;
             }
             
             $file = new FileHandler();
@@ -110,25 +108,19 @@ class MigrationGenerator
     }
 
     /**
-     * Glue a array into a single string
-     *
+     * Glue an array into a single string
      * @param array $arr
-     *
      * @param bool $is_assoc
-     *
      * @return string
-     * @author hafijul233
-     *
+     * @author MsM Robin
      */
     protected function getGluedString(array $arr, bool $is_assoc = false): string
     {
-
         //array consist of one element
-        if (count($arr) == 1)
-            return "'" . strval(array_shift($arr)) . "'";
-
+        if (count($arr) == 1){
+            return "'" . array_shift($arr) . "'";
+        }
         else {
-
             $str = '';
             if (!$is_assoc) {
                 foreach ($arr as $item) {
@@ -174,11 +166,9 @@ class MigrationGenerator
                 //integer , varchar
                 if (is_numeric($matches[1]))
                     $singleField .= "\n\t\t\t'constraint' => " . $matches[1] . ",";
-
                 //float , double
                 elseif (preg_match('/[\d]+\s?,[\d]+\s?/', $matches[1]) > 0)
                     $singleField .= "\n\t\t\t'constraint' => '" . $matches[1] . "',";
-
                 //Enum Fields
                 else {
                     $values = explode(',', str_replace("'", "", $matches[1]));

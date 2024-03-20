@@ -3,6 +3,12 @@
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\CLI\CLI;
 
+/**
+ * @class SeederGenerator
+ * Handle all db collection and generate table data ...
+ * @author MsM Robin
+ * @package Robinncode\DbCraft\Libraries
+ */
 class SeederGenerator
 {
     protected BaseConnection $db;
@@ -22,7 +28,6 @@ class SeederGenerator
     public function generateSeeders($table_name = null)
     {
         $tables = $this->getTables($table_name);
-        $seederFileContent = [];
 
         if(empty($tables)){
             CLI::write("No table found. Check your database connection", 'red');
@@ -86,6 +91,12 @@ class SeederGenerator
         return $query->getResultArray();
     }
 
+    /**
+     * Generating seeder files ...
+     * @param $table
+     * @param $data
+     * @return string
+     */
     protected function generateSeederFile($table, $data): string
     {
         $className = $this->file->tableToSeederClassName($table);
@@ -112,6 +123,12 @@ class SeederGenerator
         return $this->file->renderTemplate('seeder', $data);
     }
 
+    /**
+     * Saving the seeder file ...
+     * @param $table
+     * @param $seederFileContent
+     * @return void
+     */
     protected function saveSeederFile($table, $seederFileContent)
     {
         // Save the Seeder file to app/Database/Seeds folder
