@@ -27,7 +27,7 @@ class {name} extends Seeder
 
         //Using Query Builder Class ...
         try {
-        $this->db->table('{table}')->insertBatch(${table});
+            $this->db->table('{table}')->insertBatch(${table});
         } catch (ReflectionException $e) {
             throw new ReflectionException($e->getMessage());
         }
