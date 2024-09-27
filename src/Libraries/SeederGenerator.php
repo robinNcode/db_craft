@@ -18,6 +18,7 @@ class SeederGenerator
     {
         $this->db = db_connect();
         $this->file = new FileHandler();
+        const MIGRATION_TABLE = 'migrations';
     }
 
     /**
@@ -75,7 +76,9 @@ class SeederGenerator
         $tables = [];
         $result = $this->db->listTables();
         foreach ($result as $row) {
-            $tables[] = $row;
+            if ($row !== self::MIGRATION_TABLE) {
+                $tables[] = $row;
+            }
         }
         return $tables;
     }
@@ -144,5 +147,3 @@ class SeederGenerator
         }
     }
 }
-        
-
