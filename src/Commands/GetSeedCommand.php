@@ -1,4 +1,6 @@
-<?php namespace Robinncode\DbCraft\Commands;
+<?php
+
+namespace Robinncode\DbCraft\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
 use Robinncode\DbCraft\Libraries\SeederGenerator;
