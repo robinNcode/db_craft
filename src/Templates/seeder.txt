@@ -19,17 +19,23 @@ class {name} extends Seeder
      */
     public function run(): void
     {
+        // disable foreign key check ...
+        $this->db->disableForeignKeyChecks();
+
         // Table Data ...
         {seeder}
-
+        
         // Cleaning up the table before seeding ...
         $this->db->table('{table}')->truncate();
 
         //Using Query Builder Class ...
         try {
-        $this->db->table('{table}')->insertBatch(${table});
+            $this->db->table('{table}')->insertBatch(${table});
         } catch (ReflectionException $e) {
             throw new ReflectionException($e->getMessage());
         }
+
+        //enable foreign key check ...
+        $this->db->enableForeignKeyChecks();
     }
 }
