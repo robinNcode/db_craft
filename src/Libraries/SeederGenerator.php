@@ -13,12 +13,12 @@ class SeederGenerator
 {
     protected BaseConnection $db;
     private FileHandler $file;
+    const MIGRATION_TABLE = 'migrations';
 
     public function __construct()
     {
         $this->db = db_connect();
         $this->file = new FileHandler();
-        const MIGRATION_TABLE = 'migrations';
     }
 
     /**
