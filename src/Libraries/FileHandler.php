@@ -73,7 +73,7 @@ class FileHandler
     {
         helper('inflector');
         $fileName = date('Y-m-d-His') . '_create_' . $table . '_table.php';
-        $targetDir = ROOTPATH . 'app/Database/Migrations/';
+        $targetDir = APPPATH . 'Database/Migrations/';
         $filePath = $targetDir . $fileName;
 
         $replace = ['{migrate}', '{fields}', '{keys}', '{table}'];
