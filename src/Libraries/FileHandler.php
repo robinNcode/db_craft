@@ -11,15 +11,12 @@ class FileHandler
 
     public function __construct()
     {
-        $this->config = new Config();
+        $this->config = new Config;
     }
 
     /**
      * Convert table name to file class name
-     * @param $input
-     * @return string
      */
-
     public function tableToSeederClassName($input): string
     {
         $parts = explode('_', $input);
@@ -36,8 +33,6 @@ class FileHandler
 
     /**
      * Table to migration class name
-     * @param $input
-     * @return string
      */
     public function tableToMigrationClassName($input): string
     {
@@ -53,30 +48,20 @@ class FileHandler
         return $className;
     }
 
-    /**
-     * @param string $template
-     * @param array $data
-     * @return string
-     */
     public function renderTemplate(string $template, array $data): string
     {
-        $templateDir = realpath(__DIR__ . '/../Templates/') . '/';
-        $skeleton = file_get_contents($templateDir . $template . '.txt');
+        $templateDir = realpath(__DIR__.'/../Templates/').'/';
+        $skeleton = file_get_contents($templateDir.$template.'.txt');
 
         return str_replace(array_keys($data), array_values($data), $skeleton);
     }
 
-    /**
-     * @param string $table
-     * @param string $attributes
-     * @param string $keys
-     */
     public function writeTable(string $table, string $attributes, string $keys)
     {
         helper('inflector');
-        $fileName = date('Y-m-d-His') . '_create_' . $table . '_table.php';
-        $targetDir = ROOTPATH . 'app/Database/Migrations/';
-        $filePath = $targetDir . $fileName;
+        $fileName = date('Y-m-d-His').'_create_'.$table.'_table.php';
+        $targetDir = APPPATH.'Database/Migrations/';
+        $filePath = $targetDir.$fileName;
 
         $replace = ['{migrate}', '{fields}', '{keys}', '{table}'];
 
@@ -87,32 +72,29 @@ class FileHandler
             '{created_at}' => PRETTIFY_DATETIME,
             '{attributes}' => $attributes,
             '{keys}' => $keys,
-            '{table}' => $table
+            '{table}' => $table,
         ];
 
         $finalFile = $this->renderTemplate('migration', $data);
 
-        CLI::write($fileName . " file is creating...", 'yellow');
+        CLI::write($fileName.' file is creating...', 'yellow');
         if (file_put_contents($filePath, $finalFile)) {
-            CLI::write($fileName . " file created!", 'green');
+            CLI::write($fileName.' file created!', 'green');
         } else {
-            CLI::error($fileName . " failed to create file!");
+            CLI::error($fileName.' failed to create file!');
         }
     }
 
-    /**
-     * @param string $path
-     * @return bool
-     */
     public function checkFileExist(string $path): bool
     {
         if (is_file($path)) {
-            $permission = CLI::prompt("File already exists.Overwrite? ", ['yes', 'no'], 'required|in_list[yes,no]');
+            $permission = CLI::prompt('File already exists.Overwrite? ', ['yes', 'no'], 'required|in_list[yes,no]');
             if ($permission == 'no') {
-                CLI::error("Task Cancelled.");
+                CLI::error('Task Cancelled.');
                 exit(1);
             }
         }
+
         return true;
     }
 }

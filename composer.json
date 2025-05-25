@@ -38,5 +38,9 @@
     "documentation": "https://github.com/robinNcode/db_craft/blob/master/README.md",
     "email": "msmrobin518@gmail.com",
     "issues": "https://github.com/robinNcode/db_craft/issues"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.22",
+    "rector/rector": "^2.0"
   }
 }

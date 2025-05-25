@@ -6,10 +6,24 @@ namespace Composer\Autoload;
 
 class ComposerStaticInite82b8245945cb29db431af3b6cd28e27
 {
+    public static $files = array (
+        '9b38cf48e83f5d8f60375221cd213eee' => __DIR__ . '/..' . '/phpstan/phpstan/bootstrap.php',
+        '38143a9afc50997d55e4815db8489d1c' => __DIR__ . '/..' . '/rector/rector/bootstrap.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'R' => 
         array (
             'Robinncode\\DbCraft\\' => 19,
+        ),
+        'D' => 
+        array (
+            'Database\\Seeders\\' => 17,
+            'Database\\Factories\\' => 19,
+        ),
+        'A' => 
+        array (
+            'App\\' => 4,
         ),
     );
 
@@ -17,6 +31,18 @@ class ComposerStaticInite82b8245945cb29db431af3b6cd28e27
         'Robinncode\\DbCraft\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'Database\\Seeders\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laravel/pint/database/seeders',
+        ),
+        'Database\\Factories\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laravel/pint/database/factories',
+        ),
+        'App\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laravel/pint/app',
         ),
     );
 

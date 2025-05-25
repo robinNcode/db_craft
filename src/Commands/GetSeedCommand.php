@@ -7,16 +7,18 @@ use Robinncode\DbCraft\Libraries\SeederGenerator;
 
 class GetSeedCommand extends BaseCommand
 {
-    protected $group       = 'seeder';
-    protected $name        = 'get:seed';
+    protected $group = 'seeder';
+
+    protected $name = 'get:seed';
+
     protected $description = 'Generate Seeder files for CodeIgniter 4 based on connected database tables.';
 
     /**
      * The Command's usage
+     *
      * @var string
      */
     protected $usage = 'get:seed [table_name] [--limit]';
-
 
     public function run(array $params)
     {
@@ -24,7 +26,7 @@ class GetSeedCommand extends BaseCommand
 
         $limit = $params['limit'] ?? null;
 
-        $generator = new SeederGenerator();
-        $generator->generateSeeders($table_name, $limit);
+        $generator = new SeederGenerator;
+        $generator->generateSeeders($table_name);
     }
 }
