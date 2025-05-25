@@ -1,4 +1,6 @@
-<?php namespace Robinncode\DbCraft\Libraries;
+<?php
+
+namespace Robinncode\DbCraft\Libraries;
 
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\CLI\CLI;
@@ -26,7 +28,7 @@ class SeederGenerator
      * @param $table_name
      * @return void
      */
-    public function generateSeeders($table_name = null)
+    public function generateSeeders($table_name = null, $limit = null)
     {
         $tables = $this->getTables($table_name);
 
@@ -35,7 +37,7 @@ class SeederGenerator
         }
         else{
             foreach ($tables as $table) {
-                $data = $this->getTableData($table);
+                $data = $this->getTableData($table, $limit);
                 $seederFileContent = $this->generateSeederFile($table, $data);
 
                 $this->saveSeederFile($table, $seederFileContent);
@@ -88,10 +90,13 @@ class SeederGenerator
      * @param $table
      * @return array
      */
-    protected function getTableData($table): array
+    protected function getTableData($table, $limit): array
     {
-        $query = $this->db->table($table)->get();
-        return $query->getResultArray();
+        $query = $this->db->table($table);
+        if ($limit) {
+            $query->limit($limit);
+        }
+        return $query->get()->getResultArray();
     }
 
     /**

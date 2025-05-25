@@ -15,14 +15,16 @@ class GetSeedCommand extends BaseCommand
      * The Command's usage
      * @var string
      */
-    protected $usage = 'get:seed [table_name]';
+    protected $usage = 'get:seed [table_name] [--limit]';
 
 
     public function run(array $params)
     {
-        $table_name = array_shift($params);
+        $table_name = $params[0] ?? null;
+
+        $limit = $params['limit'] ?? null;
 
         $generator = new SeederGenerator();
-        $generator->generateSeeders($table_name);
+        $generator->generateSeeders($table_name, $limit);
     }
 }
