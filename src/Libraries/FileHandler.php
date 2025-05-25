@@ -1,4 +1,6 @@
-<?php namespace Robinncode\DbCraft\Libraries;
+<?php
+
+namespace Robinncode\DbCraft\Libraries;
 
 use CodeIgniter\CLI\CLI;
 use Robinncode\DbCraft\Config;
@@ -91,10 +93,9 @@ class FileHandler
         $finalFile = $this->renderTemplate('migration', $data);
 
         CLI::write($fileName . " file is creating...", 'yellow');
-        if(file_put_contents($filePath, $finalFile)){
+        if (file_put_contents($filePath, $finalFile)) {
             CLI::write($fileName . " file created!", 'green');
-        }
-        else{
+        } else {
             CLI::error($fileName . " failed to create file!");
         }
     }

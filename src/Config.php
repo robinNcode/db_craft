@@ -1,4 +1,6 @@
-<?php namespace Robinncode\DbCraft;
+<?php
+
+namespace Robinncode\DbCraft;
 
 class Config
 {
