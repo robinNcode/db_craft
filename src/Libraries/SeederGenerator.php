@@ -26,7 +26,7 @@ class SeederGenerator
      * @param string|null $table_name
      * @return void
      */
-    public function generateSeeders($table_name = null)
+    public function generateSeeders(string $table_name = null)
     {
         $tables = $this->getTables($table_name);
 
