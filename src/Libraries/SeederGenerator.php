@@ -15,13 +15,19 @@ class SeederGenerator
     private FileHandler $file;
 
     const MIGRATION_TABLE = 'migrations';
+    const DEFAULT_CHUNK_SIZE = 1000; // Default number of rows per chunk
 
-    const CHUNK_SIZE = 1000; // Number of rows per chunk
+    /**
+     * Number of rows fetched from the database per chunk.
+     * @var int
+     */
+    protected int $chunkSize;
 
-    public function __construct()
+    public function __construct(int $chunkSize = self::DEFAULT_CHUNK_SIZE)
     {
         $this->db = db_connect();
-        $this->file = new FileHandler;
+        $this->file = new FileHandler();
+        $this->chunkSize = max(1, $chunkSize);
     }
 
     /**
@@ -50,54 +56,57 @@ class SeederGenerator
     protected function createSeederFileWithChunks(string $table): void
     {
         $totalRows = $this->getTableRowCount($table);
-        $chunkSize = self::CHUNK_SIZE;
 
+        if ($totalRows === 0) {
         if ($totalRows === 0) {
             CLI::write("Table '$table' is empty. Skipping...", 'yellow');
 
             return;
-        } elseif ($totalRows < $chunkSize) {
-            $chunkSize = $totalRows;
         }
 
-        $totalChunks = (int) ceil($totalRows / $chunkSize);
         $className = $this->file->tableToSeederClassName($table);
         $filePath = APPPATH.'Database/Seeds/'.$className.'.php';
 
-        // Initialize header and footer templates
-        $headerTemplate = $this->getSeederHeaderTemplate($className, $table);
-        $footerTemplate = $this->getSeederFooterTemplate($table);
-
-        // Write header to file
-        file_put_contents($filePath, $headerTemplate);
-
-        // Generate seeder content in chunks
-        for ($chunk = 0; $chunk < $totalChunks; $chunk++) {
-            $offset = $chunk * $chunkSize;
-            $rows = $this->getTableDataChunk($table, $offset, $chunkSize);
-            $chunkContent = '';
-
-            foreach ($rows as $row) {
-                $chunkContent .= '            [';
-                foreach ($row as $column => $value) {
-                    $chunkContent .= "'$column' => ".var_export($value, true).',';
-                }
-                $chunkContent .= "],\n";
-            }
-
-            // Append chunk data to the seeder file
-            file_put_contents($filePath, $chunkContent, FILE_APPEND | LOCK_EX);
-
-            // Display progress
-            $progress = (($chunk + 1) * $chunkSize) / $totalRows * 100;
-            CLI::write(sprintf('Progress: %.2f%% (%d/%d rows)', $progress, min(($chunk + 1) * $chunkSize, $totalRows), $totalRows), 'yellow');
+        // Open the file once and stream into it — re-opening per row is very slow
+        $handle = fopen($filePath, 'wb');
+        if ($handle === false) {
+            CLI::error("Unable to open '$filePath' for writing!");
+            return;
         }
 
-        // Write footer to finalize the file
-        file_put_contents($filePath, $footerTemplate, FILE_APPEND | LOCK_EX);
+        fwrite($handle, $this->getSeederHeaderTemplate($className, $table));
 
-        // Success message for each file generated
-        CLI::write("Seeder file for table '$table' generated successfully!", 'green');
+        CLI::write("Generating seeder for table '$table' ($totalRows rows)...", 'yellow');
+
+        // Stream rows via generator — only one chunk lives in memory at a time
+        $processed = 0;
+        $buffer = '';
+        foreach ($this->yieldTableRows($table) as $row) {
+            $buffer .= "            [";
+            foreach ($row as $column => $value) {
+                $buffer .= "'$column' => " . var_export($value, true) . ",";
+            }
+            $buffer .= "],\n";
+
+            $processed++;
+
+            // Flush the buffer and update the progress bar once per chunk, not per row
+            if ($processed % $this->chunkSize === 0) {
+                fwrite($handle, $buffer);
+                $buffer = '';
+                CLI::showProgress($processed, $totalRows);
+            }
+        }
+
+        // Write any remaining rows and the footer to finalize the file
+        fwrite($handle, $buffer . $this->getSeederFooterTemplate($table));
+        fclose($handle);
+
+        // Complete and clear the progress bar
+        CLI::showProgress($totalRows, $totalRows);
+        CLI::showProgress(false);
+
+        CLI::write("Seeder file for table '$table' generated successfully! ($processed/$totalRows rows)", 'green');
     }
 
     /**
@@ -171,14 +180,103 @@ EOT;
     }
 
     /**
-     * Retrieves a chunk of data from the specified table.
+     * PHP Generator that yields rows from the table one at a time,
+     * fetching from the database in chunks to keep memory usage flat.
+     *
+     * Uses keyset pagination (WHERE pk > last ORDER BY pk) when the table
+     * has a single-column primary key — O(n) instead of the O(n²) row
+     * scanning that LIMIT/OFFSET causes on large tables. Falls back to
+     * OFFSET pagination when no usable primary key exists.
+     *
+     * @param string $table
+     * @return \Generator<int, array>
      */
-    protected function getTableDataChunk(string $table, int $offset, int $limit): array
+    protected function yieldTableRows(string $table): \Generator
     {
-        return $this->db->table($table)
-            ->limit($limit, $offset)
-            ->get()
-            ->getResultArray();
+        $primaryKey = $this->getPrimaryKey($table);
+
+        if ($primaryKey !== null) {
+            yield from $this->yieldRowsByKeyset($table, $primaryKey);
+        } else {
+            yield from $this->yieldRowsByOffset($table);
+        }
+    }
+
+    /**
+     * Stream rows ordered by primary key, seeking past the last seen key.
+     * Each chunk query is index-driven regardless of table size.
+     * @param string $table
+     * @param string $primaryKey
+     * @return \Generator<int, array>
+     */
+    protected function yieldRowsByKeyset(string $table, string $primaryKey): \Generator
+    {
+        $lastKey = null;
+
+        do {
+            $builder = $this->db->table($table)
+                ->orderBy($primaryKey, 'ASC')
+                ->limit($this->chunkSize);
+
+            if ($lastKey !== null) {
+                $builder->where($primaryKey . ' >', $lastKey);
+            }
+
+            $rows = $builder->get()->getResultArray();
+
+            foreach ($rows as $row) {
+                yield $row;
+            }
+
+            if (!empty($rows)) {
+                $lastKey = end($rows)[$primaryKey];
+            }
+        } while (count($rows) === $this->chunkSize);
+    }
+
+    /**
+     * Fallback: stream rows with LIMIT/OFFSET chunks (tables without a
+     * single-column primary key). Memory stays flat but large offsets
+     * get progressively slower on big tables.
+     * @param string $table
+     * @return \Generator<int, array>
+     */
+    protected function yieldRowsByOffset(string $table): \Generator
+    {
+        $offset = 0;
+
+        do {
+            $rows = $this->db->table($table)
+                ->limit($this->chunkSize, $offset)
+                ->get()
+                ->getResultArray();
+
+            foreach ($rows as $row) {
+                yield $row;
+            }
+
+            $offset += $this->chunkSize;
+        } while (count($rows) === $this->chunkSize);
+    }
+
+    /**
+     * Detect a single-column primary key for keyset pagination.
+     * @param string $table
+     * @return string|null
+     */
+    protected function getPrimaryKey(string $table): ?string
+    {
+        try {
+            foreach ($this->db->getIndexData($table) as $index) {
+                if (strtoupper($index->type) === 'PRIMARY' && count($index->fields) === 1) {
+                    return $index->fields[0];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Driver couldn't report index data — fall back to offset pagination
+        }
+
+        return null;
     }
 
     /**
