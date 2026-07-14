@@ -31,8 +31,9 @@ class MigrationGenerator
             $this->db = Database::connect($group);
             $this->db->initialize();
         } catch (Throwable $exception) {
-            CLI::error($exception->getMessage());
-            exit();
+            CLI::error('Database connection failed: ' . $exception->getMessage());
+            CLI::write('Check your database settings in .env or app/Config/Database.php', 'yellow');
+            exit(1);
         }
     }
 
@@ -42,16 +43,21 @@ class MigrationGenerator
     public function generateAllMigration(): void
     {
         $tables = $this->getTableNames();
-        foreach ($tables as $table) {
-            $tableInfo = $this->getTableInfos($table);
+        $generated = 0;
 
+        foreach ($tables as $table) {
             if ($table === self::MIGRATION_TABLE) {
                 continue;
             }
 
+            $tableInfo = $this->getTableInfos($table);
+
             $file = new FileHandler;
             $file->writeTable($table, $tableInfo['attributes'], $tableInfo['keys']);
+            $generated++;
         }
+
+        CLI::write("Done! {$generated} migration file(s) generated.", 'green');
     }
 
     /**
@@ -60,7 +66,8 @@ class MigrationGenerator
     public function generateSingleMigration($table): void
     {
         if (! in_array($table, $this->getTableNames(), true)) {
-            CLI::error("Table '$table' not found in database. Check your table name!");
+            CLI::error("Table '{$table}' not found in database.");
+            CLI::write('Available tables: ' . implode(', ', $this->getTableNames()), 'yellow');
             exit(1);
         }
 
@@ -68,6 +75,8 @@ class MigrationGenerator
 
         $file = new FileHandler;
         $file->writeTable($table, $tableInfo['attributes'], $tableInfo['keys']);
+
+        CLI::write('Done! Migration file generated.', 'green');
     }
 
     /**
@@ -80,7 +89,8 @@ class MigrationGenerator
         $tables = $this->db->listTables() ?? [];
 
         if (empty($tables)) {
-            CLI::error('No table found in database!');
+            CLI::error('No tables found in database!');
+            CLI::write('Check your database connection settings and make sure the database is not empty.', 'yellow');
             exit(1);
         }
 

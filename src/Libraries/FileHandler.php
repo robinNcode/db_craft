@@ -68,6 +68,13 @@ class FileHandler
             return;
         }
 
+        // Remove older migrations of the same table to avoid duplicate class names ...
+        $existing = glob($targetDir . '*_create_' . $table . '_table.php') ?: [];
+        foreach ($existing as $oldFile) {
+            unlink($oldFile);
+            CLI::write('  Replaced: ' . basename($oldFile), 'yellow');
+        }
+
         $filePath = $targetDir . $fileName;
 
         $replace = ['{migrate}', '{fields}', '{keys}', '{table}'];
@@ -84,11 +91,10 @@ class FileHandler
 
         $finalFile = $this->renderTemplate('migration', $data);
 
-        CLI::write($fileName.' file is creating...', 'yellow');
         if (file_put_contents($filePath, $finalFile)) {
-            CLI::write($fileName.' file created!', 'green');
+            CLI::write("  Created: {$fileName}", 'green');
         } else {
-            CLI::error($fileName.' failed to create file!');
+            CLI::error("  Failed to create '{$fileName}'. Check folder permissions for '{$targetDir}'.");
         }
     }
 
