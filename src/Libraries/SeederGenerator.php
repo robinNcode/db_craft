@@ -13,12 +13,19 @@ class SeederGenerator
     protected BaseConnection $db;
     private FileHandler $file;
     const MIGRATION_TABLE = 'migrations';
-    const CHUNK_SIZE = 1000; // Number of rows per chunk
+    const DEFAULT_CHUNK_SIZE = 1000; // Default number of rows per chunk
 
-    public function __construct()
+    /**
+     * Number of rows fetched from the database per chunk.
+     * @var int
+     */
+    protected int $chunkSize;
+
+    public function __construct(int $chunkSize = self::DEFAULT_CHUNK_SIZE)
     {
         $this->db = db_connect();
         $this->file = new FileHandler();
+        $this->chunkSize = max(1, $chunkSize);
     }
 
     /**
@@ -66,6 +73,8 @@ class SeederGenerator
 
         fwrite($handle, $this->getSeederHeaderTemplate($className, $table));
 
+        CLI::write("Generating seeder for table '$table' ($totalRows rows)...", 'yellow');
+
         // Stream rows via generator — only one chunk lives in memory at a time
         $processed = 0;
         $buffer = '';
@@ -78,12 +87,11 @@ class SeederGenerator
 
             $processed++;
 
-            // Flush the buffer and report progress once per chunk, not per row
-            if ($processed % self::CHUNK_SIZE === 0) {
+            // Flush the buffer and update the progress bar once per chunk, not per row
+            if ($processed % $this->chunkSize === 0) {
                 fwrite($handle, $buffer);
                 $buffer = '';
-                $progress = ($processed / $totalRows) * 100;
-                CLI::write(sprintf("Progress: %.2f%% (%d/%d rows)", $progress, $processed, $totalRows), 'yellow');
+                CLI::showProgress($processed, $totalRows);
             }
         }
 
@@ -91,8 +99,11 @@ class SeederGenerator
         fwrite($handle, $buffer . $this->getSeederFooterTemplate($table));
         fclose($handle);
 
-        CLI::write(sprintf("Progress: 100.00%% (%d/%d rows)", $processed, $totalRows), 'yellow');
-        CLI::write("Seeder file for table '$table' generated successfully!", 'green');
+        // Complete and clear the progress bar
+        CLI::showProgress($totalRows, $totalRows);
+        CLI::showProgress(false);
+
+        CLI::write("Seeder file for table '$table' generated successfully! ($processed/$totalRows rows)", 'green');
     }
 
     /**
@@ -208,7 +219,7 @@ EOT;
         do {
             $builder = $this->db->table($table)
                 ->orderBy($primaryKey, 'ASC')
-                ->limit(self::CHUNK_SIZE);
+                ->limit($this->chunkSize);
 
             if ($lastKey !== null) {
                 $builder->where($primaryKey . ' >', $lastKey);
@@ -223,7 +234,7 @@ EOT;
             if (!empty($rows)) {
                 $lastKey = end($rows)[$primaryKey];
             }
-        } while (count($rows) === self::CHUNK_SIZE);
+        } while (count($rows) === $this->chunkSize);
     }
 
     /**
@@ -239,7 +250,7 @@ EOT;
 
         do {
             $rows = $this->db->table($table)
-                ->limit(self::CHUNK_SIZE, $offset)
+                ->limit($this->chunkSize, $offset)
                 ->get()
                 ->getResultArray();
 
@@ -247,8 +258,8 @@ EOT;
                 yield $row;
             }
 
-            $offset += self::CHUNK_SIZE;
-        } while (count($rows) === self::CHUNK_SIZE);
+            $offset += $this->chunkSize;
+        } while (count($rows) === $this->chunkSize);
     }
 
     /**

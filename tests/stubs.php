@@ -8,12 +8,26 @@ namespace CodeIgniter\CLI {
     class CLI
     {
         public static int $writes = 0;
+        public static int $progressCalls = 0;
 
         public static function write(string $text = '', string $foreground = null, string $background = null): void
         {
             self::$writes++;
             if (getenv('BENCH_VERBOSE')) {
                 echo $text . PHP_EOL;
+            }
+        }
+
+        /**
+         * Mirrors CI4's CLI::showProgress($thisStep, $totalSteps).
+         * Pass false to clear the bar.
+         */
+        public static function showProgress($thisStep = 1, int $totalSteps = 10): void
+        {
+            self::$progressCalls++;
+            if (getenv('BENCH_VERBOSE') && $thisStep !== false) {
+                $percent = (int) (($thisStep / $totalSteps) * 100);
+                echo "[" . str_repeat('#', (int) ($percent / 10)) . str_repeat('.', 10 - (int) ($percent / 10)) . "] {$percent}%" . PHP_EOL;
             }
         }
 

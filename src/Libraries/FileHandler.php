@@ -73,7 +73,14 @@ class FileHandler
     {
         helper('inflector');
         $fileName = date('Y-m-d-His') . '_create_' . $table . '_table.php';
-        $targetDir = APPPATH . 'Database/Migrations/';
+        // Use APPPATH so setups with a renamed app folder still resolve correctly (issue #11)
+        $targetDir = APPPATH . 'Database' . DIRECTORY_SEPARATOR . 'Migrations' . DIRECTORY_SEPARATOR;
+
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true)) {
+            CLI::error("Unable to create directory '$targetDir'!");
+            return;
+        }
+
         $filePath = $targetDir . $fileName;
 
         $replace = ['{migrate}', '{fields}', '{keys}', '{table}'];

@@ -182,6 +182,19 @@ class MigrationGenerator
 
             //if field needs null
             $singleField .= "\n\t\t\t'null' => " . (($field->Null == 'YES') ? 'true,' : 'false,');
+
+            //default value (issue #15)
+            if ($field->Default !== null) {
+                if (is_numeric($field->Default)) {
+                    $singleField .= "\n\t\t\t'default' => " . $field->Default . ",";
+                } else {
+                    $singleField .= "\n\t\t\t'default' => " . var_export($field->Default, true) . ",";
+                }
+            } elseif ($field->Null == 'YES' && strpos($field->Extra, 'auto_increment') === false) {
+                // Nullable column without explicit default → defaults to NULL
+                $singleField .= "\n\t\t\t'default' => null,";
+            }
+
             //unsigned
             if (strpos($field->Type, 'unsigned') !== false)
                 $singleField .= "\n\t\t\t'unsigned' => true,";

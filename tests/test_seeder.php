@@ -76,9 +76,25 @@ check('last row data correct',
     $data[$rows - 1]['id'] === $rows
     && $data[$rows - 1]['title'] === "Product 'quoted' #{$rows}");
 
-// --- Progress output throttled: once per chunk + final, not once per row ---
-// 2500 rows / 1000 chunk = 2 in-loop writes + 1 final + ~3 status lines; must be << 2500
-check('CLI output throttled (' . CLI::$writes . ' writes for ' . $rows . ' rows)', CLI::$writes < 20);
+// --- Progress output throttled: showProgress per chunk, not a write per row ---
+// 2500 rows / 1000 chunk = 2 in-loop + 1 final + 1 clear = 4 progress calls
+check('CLI progress bar used (' . CLI::$progressCalls . ' calls)', CLI::$progressCalls > 0 && CLI::$progressCalls < 10);
+check('CLI writes throttled (' . CLI::$writes . ' writes for ' . $rows . ' rows)', CLI::$writes < 20);
+
+// --- Custom chunk size (issue: get chunk size from user input) ---
+CLI::$progressCalls = 0;
+(new SeederGenerator(500))->generateSeeders('products');
+// 2500 rows / 500 chunk = 5 in-loop + 1 final + 1 clear = 7 progress calls
+check('custom chunk size honored (' . CLI::$progressCalls . ' progress calls @ chunk 500)', CLI::$progressCalls === 7);
+
+$src2 = file_get_contents($seederFile);
+preg_match('/\$products = \[(.*)^\s+\];/ms', $src2, $m2);
+$data2 = eval('return [' . $m2[1] . '];');
+check('output identical across chunk sizes', $data2 === $data);
+
+// --- MigrationGenerator default value fix (issue #15) ---
+$migSrc = file_get_contents(__DIR__ . '/../src/Libraries/MigrationGenerator.php');
+check('migration generator emits default values', str_contains($migSrc, "'default' =>"));
 
 // --- Cleanup ---
 array_map('unlink', glob($tmpDir . '/Database/Seeds/*.php'));
