@@ -58,7 +58,6 @@ class SeederGenerator
         $totalRows = $this->getTableRowCount($table);
 
         if ($totalRows === 0) {
-        if ($totalRows === 0) {
             CLI::write("Table '$table' is empty. Skipping...", 'yellow');
 
             return;
