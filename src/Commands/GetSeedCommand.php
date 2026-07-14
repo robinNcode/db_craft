@@ -1,4 +1,6 @@
-<?php namespace Robinncode\DbCraft\Commands;
+<?php
+
+namespace Robinncode\DbCraft\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
@@ -6,12 +8,15 @@ use Robinncode\DbCraft\Libraries\SeederGenerator;
 
 class GetSeedCommand extends BaseCommand
 {
-    protected $group       = 'seeder';
-    protected $name        = 'get:seed';
+    protected $group = 'seeder';
+
+    protected $name = 'get:seed';
+
     protected $description = 'Generate Seeder files for CodeIgniter 4 based on connected database tables.';
 
     /**
      * The Command's usage
+     *
      * @var string
      */
     protected $usage = 'get:seed [table_name] [--chunk chunk_size]';
@@ -34,7 +39,9 @@ class GetSeedCommand extends BaseCommand
 
     public function run(array $params)
     {
-        $table_name = array_shift($params);
+        $table_name = $params[0] ?? null;
+
+        $limit = $params['limit'] ?? null;
 
         $chunkSize = $params['chunk'] ?? CLI::getOption('chunk') ?? SeederGenerator::DEFAULT_CHUNK_SIZE;
 

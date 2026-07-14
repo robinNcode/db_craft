@@ -2,9 +2,6 @@
 
 /**
  * Generates 10 million numbers using yield (Generator).
- *
- * @param int $count
- * @return Generator
  */
 function generatorFunction(int $count): Generator
 {
@@ -15,9 +12,6 @@ function generatorFunction(int $count): Generator
 
 /**
  * Generates 10 million numbers using an array (Traditional Loop).
- *
- * @param int $count
- * @return array
  */
 function loopFunction(int $count): array
 {
@@ -25,6 +19,7 @@ function loopFunction(int $count): array
     for ($i = 0; $i < $count; $i++) {
         $numbers[] = $i;
     }
+
     return $numbers;
 }
 
@@ -64,10 +59,9 @@ $loopMemory = memory_get_peak_usage() - $startMemory;
 echo "Performance Comparison for 10 Million Data Points\n";
 echo "------------------------------------------------\n";
 echo "Using Generator (yield): $total_gen_iteration \n";
-echo "Execution Time: " . number_format($generatorTime, 4) . " sec\n";
-echo "Memory Usage: " . number_format($generatorMemory / (1024 * 1024), 4) . " MB\n";
+echo 'Execution Time: '.number_format($generatorTime, 4)." sec\n";
+echo 'Memory Usage: '.number_format($generatorMemory / (1024 * 1024), 4)." MB\n";
 echo "------------------------------------------------\n";
 echo "Using Traditional Loop (Array): $total_loop_iteration \n";
-echo "Execution Time: " . number_format($loopTime, 4) . " sec\n";
-echo "Memory Usage: " . number_format($loopMemory / (1024 * 1024), 4) . " MB\n";
-
+echo 'Execution Time: '.number_format($loopTime, 4)." sec\n";
+echo 'Memory Usage: '.number_format($loopMemory / (1024 * 1024), 4)." MB\n";

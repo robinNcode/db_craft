@@ -1,17 +1,19 @@
-<?php namespace Robinncode\DbCraft\Libraries;
+<?php
 
-use CodeIgniter\Database\BaseConnection;
+namespace Robinncode\DbCraft\Libraries;
+
 use CodeIgniter\CLI\CLI;
-use ReflectionException;
+use CodeIgniter\Database\BaseConnection;
 
 /**
  * SeederGenerator class to handle database table collection and generate Seeder files for CodeIgniter 4.
- * @package Robinncode\DbCraft\Libraries
  */
 class SeederGenerator
 {
     protected BaseConnection $db;
+
     private FileHandler $file;
+
     const MIGRATION_TABLE = 'migrations';
     const DEFAULT_CHUNK_SIZE = 1000; // Default number of rows per chunk
 
@@ -30,15 +32,16 @@ class SeederGenerator
 
     /**
      * Generate Seeder files based on database tables.
-     * @param string|null $table_name
+     *
      * @return void
      */
-    public function generateSeeders(string $table_name = null)
+    public function generateSeeders(?string $table_name = null)
     {
         $tables = $this->getTables($table_name);
 
         if (empty($tables)) {
-            CLI::write("No table found. Check your database connection", 'red');
+            CLI::write('No table found. Check your database connection', 'red');
+
             return;
         }
 
@@ -49,20 +52,20 @@ class SeederGenerator
 
     /**
      * Process table data in chunks, and add progress tracking.
-     * @param string $table
-     * @return void
      */
     protected function createSeederFileWithChunks(string $table): void
     {
         $totalRows = $this->getTableRowCount($table);
 
         if ($totalRows === 0) {
+        if ($totalRows === 0) {
             CLI::write("Table '$table' is empty. Skipping...", 'yellow');
+
             return;
         }
 
         $className = $this->file->tableToSeederClassName($table);
-        $filePath = APPPATH . 'Database/Seeds/' . $className . ".php";
+        $filePath = APPPATH.'Database/Seeds/'.$className.'.php';
 
         // Open the file once and stream into it — re-opening per row is very slow
         $handle = fopen($filePath, 'wb');
@@ -108,13 +111,11 @@ class SeederGenerator
 
     /**
      * Returns the header template with placeholders replaced.
-     * @param string $className
-     * @param string $table
-     * @return string
      */
     protected function getSeederHeaderTemplate(string $className, string $table): string
     {
         $currentTime = date('Y-m-d H:i:s');
+
         return <<<EOT
 <?php namespace App\Database\Seeds;
 
@@ -147,8 +148,6 @@ EOT;
 
     /**
      * Returns the footer template with placeholders replaced.
-     * @param string $table
-     * @return string
      */
     protected function getSeederFooterTemplate(string $table): string
     {
@@ -174,8 +173,6 @@ EOT;
 
     /**
      * Get total row count for the table.
-     * @param string $table
-     * @return int
      */
     protected function getTableRowCount(string $table): int
     {
@@ -284,8 +281,8 @@ EOT;
 
     /**
      * Get the list of tables or a specific table.
-     * @param string|null $table_name
-     * @return array
+     *
+     * @param  string|null  $table_name
      */
     protected function getTables($table_name = null): array
     {
@@ -297,13 +294,13 @@ EOT;
             return [$table_name];
         } else {
             CLI::write("Table '$table_name' not found. Check your table name", 'red');
+
             return [];
         }
     }
 
     /**
      * Fetch all tables from the database.
-     * @return array
      */
     protected function allTables(): array
     {
@@ -314,6 +311,66 @@ EOT;
                 $tables[] = $row;
             }
         }
+
         return $tables;
+    }
+
+    /**
+     * Getting table data ...
+     */
+    protected function getTableData($table): array
+    {
+        $query = $this->db->table($table)->get();
+
+        return $query->getResultArray();
+    }
+
+    /**
+     * Generating seeder files ...
+     */
+    protected function generateSeederFile($table, $data): string
+    {
+        $className = $this->file->tableToSeederClassName($table);
+        // Generate the Seeder file content based on the $table and $data
+        // You can customize the Seeder file content generation according to your needs
+
+        $seederFileContent = '$'.$table." = [\n";
+        foreach ($data as $row) {
+            $seederFileContent .= '            [';
+            foreach ($row as $column => $value) {
+                $seederFileContent .= "'$column' => ".var_export($value, true).',';
+            }
+            $seederFileContent .= "],\n";
+        }
+        $seederFileContent .= "        ];\n";
+
+        $data = [
+            '{name}' => $className,
+            '{created_at}' => PRETTIFY_DATETIME,
+            '{seeder}' => $seederFileContent,
+            '{table}' => $table,
+        ];
+
+        return $this->file->renderTemplate('seeder', $data);
+    }
+
+    /**
+     * Saving the seeder file ...
+     *
+     * @return void
+     */
+    protected function saveSeederFile($table, $seederFileContent)
+    {
+        // Save the Seeder file to app/Database/Seeds folder
+        $fileName = $this->file->tableToSeederClassName($table);
+        $path = APPPATH.'Database/Seeds/'.$fileName.'.php';
+
+        if (! file_exists($path)) {
+            helper('filesystem');
+            write_file($path, $seederFileContent);
+            CLI::write($table.' Seeder file generated!', 'yellow');
+        } else {
+            CLI::write($table.' Seeder file already exists!', 'red');
+        }
     }
 }
