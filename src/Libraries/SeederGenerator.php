@@ -25,7 +25,15 @@ class SeederGenerator
 
     public function __construct(int $chunkSize = self::DEFAULT_CHUNK_SIZE)
     {
-        $this->db = db_connect();
+        try {
+            $this->db = db_connect();
+            $this->db->initialize();
+        } catch (\Throwable $exception) {
+            CLI::error('Database connection failed: ' . $exception->getMessage());
+            CLI::write('Check your database settings in .env or app/Config/Database.php', 'yellow');
+            exit(1);
+        }
+
         $this->file = new FileHandler();
         $this->chunkSize = max(1, $chunkSize);
     }
@@ -40,27 +48,32 @@ class SeederGenerator
         $tables = $this->getTables($table_name);
 
         if (empty($tables)) {
-            CLI::write('No table found. Check your database connection', 'red');
-
             return;
         }
 
+        $generated = 0;
+
         foreach ($tables as $table) {
-            $this->createSeederFileWithChunks($table);
+            if ($this->createSeederFileWithChunks($table)) {
+                $generated++;
+            }
         }
+
+        CLI::write("Done! {$generated} seeder file(s) generated.", 'green');
     }
 
     /**
      * Process table data in chunks, and add progress tracking.
+     * Returns true when a seeder file was written.
      */
-    protected function createSeederFileWithChunks(string $table): void
+    protected function createSeederFileWithChunks(string $table): bool
     {
         $totalRows = $this->getTableRowCount($table);
 
         if ($totalRows === 0) {
-            CLI::write("Table '$table' is empty. Skipping...", 'yellow');
+            CLI::write("  Skipped: '{$table}' (table is empty)", 'yellow');
 
-            return;
+            return false;
         }
 
         $className = $this->file->tableToSeederClassName($table);
@@ -69,13 +82,14 @@ class SeederGenerator
         // Open the file once and stream into it — re-opening per row is very slow
         $handle = fopen($filePath, 'wb');
         if ($handle === false) {
-            CLI::error("Unable to open '$filePath' for writing!");
-            return;
+            CLI::error("  Failed: unable to write '{$filePath}'. Check folder permissions.");
+
+            return false;
         }
 
         fwrite($handle, $this->getSeederHeaderTemplate($className, $table));
 
-        CLI::write("Generating seeder for table '$table' ($totalRows rows)...", 'yellow');
+        CLI::write("  Generating: {$className}.php ('{$table}', {$totalRows} rows)", 'cyan');
 
         // Stream rows via generator — only one chunk lives in memory at a time
         $processed = 0;
@@ -105,7 +119,9 @@ class SeederGenerator
         CLI::showProgress($totalRows, $totalRows);
         CLI::showProgress(false);
 
-        CLI::write("Seeder file for table '$table' generated successfully! ($processed/$totalRows rows)", 'green');
+        CLI::write("  Created: {$className}.php ({$processed}/{$totalRows} rows)", 'green');
+
+        return true;
     }
 
     /**
@@ -287,15 +303,25 @@ EOT;
     {
         $tables = $this->allTables();
 
-        if (empty($table_name)) {
-            return $tables;
-        } elseif (in_array($table_name, $tables)) {
-            return [$table_name];
-        } else {
-            CLI::write("Table '$table_name' not found. Check your table name", 'red');
+        if (empty($tables)) {
+            CLI::error('No tables found in database!');
+            CLI::write('Check your database connection settings and make sure the database is not empty.', 'yellow');
 
             return [];
         }
+
+        if (empty($table_name)) {
+            return $tables;
+        }
+
+        if (in_array($table_name, $tables, true)) {
+            return [$table_name];
+        }
+
+        CLI::error("Table '{$table_name}' not found in database.");
+        CLI::write('Available tables: ' . implode(', ', $tables), 'yellow');
+
+        return [];
     }
 
     /**
