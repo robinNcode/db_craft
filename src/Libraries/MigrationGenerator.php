@@ -59,6 +59,11 @@ class MigrationGenerator
      */
     public function generateSingleMigration($table): void
     {
+        if (! in_array($table, $this->getTableNames(), true)) {
+            CLI::error("Table '$table' not found in database. Check your table name!");
+            exit(1);
+        }
+
         $tableInfo = $this->getTableInfos($table);
 
         $file = new FileHandler;
@@ -191,7 +196,7 @@ class MigrationGenerator
             }
 
             //unsigned
-            if (strpos($field->Type, 'unsigned') !== false)
+            if (strpos($field->Type, 'unsigned') !== false) {
                 $singleField .= "\n\t\t\t'unsigned' => true,";
             }
 
